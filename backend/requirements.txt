@@ -1,0 +1,6 @@
+Flask
+Flask-Cors
+Flask-Migrate
+yfinance
+SQLAlchemy
+psycopg2-binary

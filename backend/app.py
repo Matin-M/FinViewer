@@ -10,7 +10,6 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # app.py
 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -97,11 +96,10 @@ def view_portfolio():
 @app.route('/api/stock_history/<ticker>', methods=['GET'])
 def get_stock_history(ticker):
     try:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
-
+        time_range = request.args.get('range', '1mo')  # Default to 1 month
         stock = yf.Ticker(ticker)
-        history = stock.history(start=start_date, end=end_date)
+        # Use period instead of start/end dates
+        history = stock.history(period=time_range)
 
         data = []
         for date, row in history.iterrows():

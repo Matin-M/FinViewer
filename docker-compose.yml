@@ -8,9 +8,14 @@ services:
     ports:
       - "5000:5000"
     environment:
+      - FLASK_ENV=development  # Enable Flask auto-reloading
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    volumes:
+      - ./backend:/app  # Mount your codebase to the container
+      - ./backend/migrations:/app/migrations  # Persist migrations to host
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13
@@ -23,6 +28,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:

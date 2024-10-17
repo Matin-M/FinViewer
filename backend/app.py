@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 import os
+import numpy as np
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 # app.py
@@ -98,14 +99,20 @@ def get_stock_history(ticker):
     try:
         time_range = request.args.get('range', '1mo')  # Default to 1 month
         stock = yf.Ticker(ticker)
-        # Use period instead of start/end dates
-        history = stock.history(period=time_range)
+        history = stock.history(period=time_range, interval='1d')
+
+        # Downsample to a fixed number of points (e.g., 30)
+        desired_points = 100
+        if len(history) > desired_points:
+            indices = np.linspace(0, len(history) - 1,
+                                  desired_points, dtype=int)
+            history = history.iloc[indices]
 
         data = []
         for date, row in history.iterrows():
             data.append({
                 'date': date.strftime('%Y-%m-%d'),
-                'close': row['Close']
+                'close': float(row['Close'])
             })
 
         return jsonify(data), 200

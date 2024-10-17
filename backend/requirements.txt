@@ -4,3 +4,5 @@ Flask-Migrate
 yfinance
 SQLAlchemy
 psycopg2-binary
+numpy
+logging

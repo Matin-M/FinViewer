@@ -1,3 +1,5 @@
+// src/components/SearchStock.tsx
+
 import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
 import {
@@ -26,7 +28,9 @@ const SearchStock: React.FC = () => {
       const stockResponse = await axios.get(`/stock/${ticker}`);
       setStockData(stockResponse.data);
 
-      const historyResponse = await axios.get(`/stock_history/${ticker}?range=${timeRange}`);
+      const historyResponse = await axios.get(
+        `/stock_history/${ticker}?range=${timeRange}`
+      );
       setHistoricalData(historyResponse.data);
 
       // Update recent searches
@@ -58,7 +62,9 @@ const SearchStock: React.FC = () => {
                 <Typography variant="h5">
                   {stockData.longName} ({stockData.symbol})
                 </Typography>
-                <Typography variant="body1">Current Price: ${stockData.currentPrice}</Typography>
+                <Typography variant="body1">
+                  Current Price: ${stockData.currentPrice}
+                </Typography>
               </CardContent>
             </Card>
           )}

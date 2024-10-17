@@ -102,7 +102,7 @@ def get_stock_history(ticker):
         history = stock.history(period=time_range, interval='1d')
 
         # Downsample to a fixed number of points (e.g., 30)
-        desired_points = 100
+        desired_points = 60
         if len(history) > desired_points:
             indices = np.linspace(0, len(history) - 1,
                                   desired_points, dtype=int)
@@ -112,7 +112,11 @@ def get_stock_history(ticker):
         for date, row in history.iterrows():
             data.append({
                 'date': date.strftime('%Y-%m-%d'),
-                'close': float(row['Close'])
+                'open': float(row['Open']),
+                'high': float(row['High']),
+                'low': float(row['Low']),
+                'close': float(row['Close']),
+                'volume': int(row['Volume'])
             })
 
         return jsonify(data), 200

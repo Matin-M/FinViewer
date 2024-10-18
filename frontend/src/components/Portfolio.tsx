@@ -24,6 +24,7 @@ interface PortfolioItem {
   current_price: number;
   total_value: number;
   unrealized_pl: number;
+  purchase_date: string;
 }
 
 interface PortfolioHistoryItem {
@@ -102,6 +103,7 @@ const Portfolio: React.FC = () => {
               <TableCell align="right">Current Price</TableCell>
               <TableCell align="right">Total Value</TableCell>
               <TableCell align="right">Unrealized P&L</TableCell>
+              <TableCell align="right">Purchase Date</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -121,6 +123,7 @@ const Portfolio: React.FC = () => {
                 >
                   ${item.unrealized_pl.toFixed(2)}
                 </TableCell>
+                <TableCell align="right">{item.purchase_date}</TableCell>
                 <TableCell align="right">
                   <FormControl style={{ marginRight: '10px', minWidth: '100px' }}>
                     <Select

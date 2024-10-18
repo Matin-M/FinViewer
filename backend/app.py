@@ -168,13 +168,22 @@ def get_portfolio_details():
         for txn in transactions:
             ticker = txn.ticker.upper()
             if ticker not in portfolio:
-                portfolio[ticker] = {'quantity': 0, 'cost_basis': 0.0}
+                portfolio[ticker] = {
+                    'quantity': 0,
+                    'cost_basis': 0.0,
+                    # Initialize with the first purchase date
+                    'purchase_date': txn.timestamp.strftime('%Y-%m-%d')
+                }
             position = portfolio[ticker]
             if txn.transaction_type == 'buy':
                 total_cost = position['cost_basis'] * position['quantity']
                 total_cost += txn.price * txn.quantity
                 position['quantity'] += txn.quantity
                 position['cost_basis'] = total_cost / position['quantity']
+                # Update purchase date to the earliest buy transaction
+                if position['purchase_date'] > txn.timestamp.strftime('%Y-%m-%d'):
+                    position['purchase_date'] = txn.timestamp.strftime(
+                        '%Y-%m-%d')
             elif txn.transaction_type == 'sell':
                 total_cost = position['cost_basis'] * position['quantity']
                 total_cost -= position['cost_basis'] * txn.quantity
@@ -215,7 +224,9 @@ def get_portfolio_details():
                 'cost_basis': cost_basis,
                 'current_price': current_price,
                 'total_value': total_value,
-                'unrealized_pl': unrealized_pl
+                'unrealized_pl': unrealized_pl,
+                # Include purchase date
+                'purchase_date': position['purchase_date']
             })
 
         return jsonify(portfolio_details), 200

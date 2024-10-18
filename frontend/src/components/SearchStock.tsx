@@ -11,12 +11,11 @@ import {
   ListItemText,
   ListItemButton,
   ButtonGroup,
-  Divider,
 } from '@mui/material';
 import StockChart from './StockChart';
 
 const SearchStock: React.FC = () => {
-  const [ticker, setTicker] = useState('');
+  const [ticker, setTicker] = useState('SPY');
   const [stockData, setStockData] = useState<any>(null);
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -24,28 +23,37 @@ const SearchStock: React.FC = () => {
   const [quantity, setQuantity] = useState<number | ''>('');
   const [additionalInfo, setAdditionalInfo] = useState<any>(null);
 
+  // Load recent searches from localStorage and automatically search the most recent one
   useEffect(() => {
-    // Load recent searches from localStorage on component mount
     const storedSearches = localStorage.getItem('recentSearches');
     if (storedSearches) {
-      setRecentSearches(JSON.parse(storedSearches));
+      const recentSearchesArray = JSON.parse(storedSearches);
+      console.log(storedSearches);
+      setRecentSearches(recentSearchesArray);
+      if (recentSearchesArray.length > 0) {
+        const mostRecentTicker = recentSearchesArray[0]; // Get the most recent search
+        setTicker(mostRecentTicker);
+        handleSearch(mostRecentTicker); // Automatically search the most recent ticker
+      }
     }
   }, []);
 
-  const handleSearch = async () => {
+  // Modify the handleSearch function to take a ticker argument (optional)
+  const handleSearch = async (event?: React.MouseEvent<HTMLButtonElement>, searchTicker?: string) => {
+    const tickerToSearch = searchTicker || ticker; // Use provided ticker or current state ticker
     try {
-      const stockResponse = await axios.get(`/stock/${ticker}`);
+      const stockResponse = await axios.get(`/stock/${tickerToSearch}`);
       setStockData(stockResponse.data.info);
       setAdditionalInfo(stockResponse.data.additional_info);
 
       const historyResponse = await axios.get(
-        `/stock_history/${ticker}?range=${timeRange}`
+        `/stock_history/${tickerToSearch}?range=${timeRange}`
       );
       setHistoricalData(historyResponse.data);
 
       // Update recent searches
       setRecentSearches((prev) => {
-        const updated = [ticker, ...prev.filter((t) => t !== ticker)];
+        const updated = [tickerToSearch, ...prev.filter((t) => t !== tickerToSearch)];
         const limited = updated.slice(0, 10);
         localStorage.setItem('recentSearches', JSON.stringify(limited)); // Save to localStorage
         return limited;
@@ -196,7 +204,12 @@ const SearchStock: React.FC = () => {
             fullWidth
             style={{ marginBottom: '10px' }}
           />
-          <Button variant="contained" color="primary" onClick={handleSearch} fullWidth>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => handleSearch(event)}
+            fullWidth
+          >
             Search
           </Button>
 

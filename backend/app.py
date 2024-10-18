@@ -137,6 +137,8 @@ def get_portfolio_details():
     try:
         transactions = Transaction.query.order_by(Transaction.timestamp).all()
         portfolio = {}
+
+        # Build portfolio based on transactions
         for txn in transactions:
             ticker = txn.ticker.upper()
             if ticker not in portfolio:
@@ -153,14 +155,24 @@ def get_portfolio_details():
                 position['quantity'] -= txn.quantity
                 position['cost_basis'] = total_cost / \
                     position['quantity'] if position['quantity'] > 0 else 0.0
+
         # Remove positions with zero quantity
         portfolio = {k: v for k, v in portfolio.items() if v['quantity'] > 0}
 
-        # Get current prices
+        # Get current prices for all tickers
         tickers = list(portfolio.keys())
         stocks = yf.Tickers(' '.join(tickers))
-        prices = {
-            ticker: stocks.tickers[ticker].info['regularMarketPrice'] for ticker in tickers}
+
+        prices = {}
+        for ticker in tickers:
+            stock_info = stocks.tickers[ticker].info
+
+            # Try to get regular, post-market, or previous close price
+            current_price = stock_info.get('regularMarketPrice') or \
+                stock_info.get('postMarketPrice') or \
+                stock_info.get('previousClose')
+
+            prices[ticker] = current_price if current_price is not None else 0.0
 
         # Prepare portfolio details
         portfolio_details = []
@@ -179,8 +191,10 @@ def get_portfolio_details():
                 'total_value': total_value,
                 'unrealized_pl': unrealized_pl
             })
+
         return jsonify(portfolio_details), 200
     except Exception as e:
+        app.logger.error(f"Error in /api/portfolio_details: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

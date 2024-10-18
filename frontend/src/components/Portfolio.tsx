@@ -152,7 +152,7 @@ const Portfolio: React.FC = () => {
                     variant="contained"
                     color="secondary"
                     onClick={() => handleTransaction(item.ticker)}
-                    style={{ height: '56px' }} // Match the height of the TextField
+                    style={{ height: '56px' }}
                   >
                     Execute
                   </Button>

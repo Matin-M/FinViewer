@@ -222,7 +222,7 @@ const SearchStock: React.FC = () => {
                     key={searchTicker}
                     onClick={() => {
                       setTicker(searchTicker);
-                      handleSearch();
+                      handleSearch(undefined, searchTicker);
                     }}
                   >
                     <ListItemText primary={searchTicker} />

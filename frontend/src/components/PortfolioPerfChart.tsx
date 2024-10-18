@@ -40,13 +40,12 @@ const PortfolioPerfChart: React.FC<PortfolioChartProps> = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={formattedData}>
-        {/* Light grid lines for a cleaner look */}
         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
         <XAxis
           dataKey="date"
           tickFormatter={(timestamp) => format(new Date(timestamp), 'MM/dd')}
-          interval="preserveStartEnd" // Display less ticks to reduce density
-          minTickGap={50} // Ensures more space between ticks
+          interval="preserveStartEnd"
+          minTickGap={50}
         />
         
         {/* Y-axis with currency formatting */}

@@ -11,7 +11,9 @@ import {
   ListItemText,
   ListItemButton,
   ButtonGroup,
+  IconButton,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'; // Icon for removing searches
 import StockChart from './charts/StockChart';
 
 const SearchStock: React.FC = () => {
@@ -28,12 +30,11 @@ const SearchStock: React.FC = () => {
     const storedSearches = localStorage.getItem('recentSearches');
     if (storedSearches) {
       const recentSearchesArray = JSON.parse(storedSearches);
-      console.log(storedSearches);
       setRecentSearches(recentSearchesArray);
       if (recentSearchesArray.length > 0) {
         const mostRecentTicker = recentSearchesArray[0]; // Get the most recent search
         setTicker(mostRecentTicker);
-        handleSearch(mostRecentTicker); // Automatically search the most recent ticker
+        handleSearch(undefined, mostRecentTicker); // Automatically search the most recent ticker
       }
     }
   }, []);
@@ -139,7 +140,7 @@ const SearchStock: React.FC = () => {
                 </ButtonGroup>
               </div>
               <StockChart data={historicalData} ticker={ticker} />
-              
+
               {/* Additional Stock Information in Grid */}
               {additionalInfo && (
                 <Card style={{ marginTop: '20px', padding: '20px' }}>
@@ -214,22 +215,32 @@ const SearchStock: React.FC = () => {
           </Button>
 
           {recentSearches.length > 0 && (
-            <div style={{ marginTop: '20px', border: '1px solid #ccc', borderRadius: '4px', padding: '10px' }}>
-              <Typography variant="h6" style={{ marginBottom: '10px' }}>Recent Searches</Typography>
-              <List>
-                {recentSearches.map((searchTicker) => (
-                  <ListItemButton
-                    key={searchTicker}
-                    onClick={() => {
-                      setTicker(searchTicker);
-                      handleSearch(undefined, searchTicker);
-                    }}
-                  >
-                    <ListItemText primary={searchTicker} />
-                  </ListItemButton>
-                ))}
-              </List>
-            </div>
+            <Card style={{ marginTop: '20px' }}>
+              <CardContent>
+                <Typography variant="h6" style={{ marginBottom: '10px' }}>Recent Searches</Typography>
+                <List>
+                  {recentSearches.map((searchTicker) => (
+                    <ListItemButton
+                      key={searchTicker}
+                      onClick={() => {
+                        setTicker(searchTicker);
+                        handleSearch(undefined, searchTicker);
+                      }}
+                      style={{
+                        padding: '10px',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.3s',
+                      }}
+                    >
+                      <ListItemText
+                        primary={searchTicker}
+                        primaryTypographyProps={{ fontWeight: 'bold' }}
+                      />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
           )}
         </Grid>
       </Grid>

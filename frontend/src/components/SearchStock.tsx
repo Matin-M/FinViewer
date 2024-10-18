@@ -125,6 +125,17 @@ const SearchStock: React.FC = () => {
               {/* Additional Stock Information in Grid */}
               {additionalInfo && (
                 <Card style={{ marginTop: '20px', padding: '20px' }}>
+                  <Typography
+                    variant="h6"
+                    style={{
+                      marginBottom: '10px',
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      color: '#3f51b5',
+                    }}
+                  >
+                    Additional Statistics
+                  </Typography>
                   <Grid container spacing={2} style={{ marginTop: '20px' }}>
                     <Grid item xs={6} sm={3}>
                       <Typography variant="body2">Previous Close</Typography>
@@ -167,7 +178,7 @@ const SearchStock: React.FC = () => {
 
         {/* Right Column */}
         <Grid item xs={12} md={3}>
-          <Typography variant="h4">Quote Lookup</Typography>
+          <Typography variant="h4" style={{ marginBottom: '20px' }}>Quote Lookup</Typography>
           <TextField
             label="Ticker Symbol"
             value={ticker}
@@ -180,8 +191,8 @@ const SearchStock: React.FC = () => {
           </Button>
 
           {recentSearches.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6">Recent Searches</Typography>
+            <div style={{ marginTop: '20px', border: '1px solid #ccc', borderRadius: '4px', padding: '10px' }}>
+              <Typography variant="h6" style={{ marginBottom: '10px' }}>Recent Searches</Typography>
               <List>
                 {recentSearches.map((searchTicker) => (
                   <ListItemButton

@@ -37,7 +37,26 @@ def get_stock(ticker):
     try:
         stock = yf.Ticker(ticker)
         data = stock.info
-        return jsonify(data), 200
+
+        # Extract additional information
+        additional_info = {
+            'previous_close': data.get('previousClose'),
+            'open': data.get('open'),
+            'market_cap': data.get('marketCap'),
+            'volume': data.get('volume'),
+            'avg_volume': data.get('averageVolume'),
+            'days_range': data.get('dayLow') and data.get('dayHigh') and f"{data.get('dayLow')} - {data.get('dayHigh')}",
+            '52_week_range': data.get('fiftyTwoWeekLow') and data.get('fiftyTwoWeekHigh') and f"{data.get('fiftyTwoWeekLow')} - {data.get('fiftyTwoWeekHigh')}",
+            'pe_ratio': data.get('trailingPE'),
+            'eps': data.get('trailingEps'),
+            'beta': data.get('beta'),
+            'earnings_date': data.get('earningsDate'),
+            'forward_dividend_yield': data.get('dividendYield'),
+            'ex_dividend_date': data.get('exDividendDate'),
+            'target_est_1y': data.get('targetMeanPrice'),
+        }
+
+        return jsonify({'info': data, 'additional_info': additional_info}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 

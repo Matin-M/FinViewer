@@ -1,5 +1,3 @@
-// src/components/SearchStock.tsx
-
 import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig';
 import {
@@ -13,6 +11,7 @@ import {
   ListItemText,
   ListItemButton,
   ButtonGroup,
+  Divider,
 } from '@mui/material';
 import StockChart from './StockChart';
 
@@ -23,11 +22,13 @@ const SearchStock: React.FC = () => {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [timeRange, setTimeRange] = useState('1mo');
   const [quantity, setQuantity] = useState<number | ''>(''); // New state for quantity
+  const [additionalInfo, setAdditionalInfo] = useState<any>(null);
 
   const handleSearch = async () => {
     try {
       const stockResponse = await axios.get(`/stock/${ticker}`);
-      setStockData(stockResponse.data);
+      setStockData(stockResponse.data.info);
+      setAdditionalInfo(stockResponse.data.additional_info);
 
       const historyResponse = await axios.get(
         `/stock_history/${ticker}?range=${timeRange}`
@@ -120,6 +121,46 @@ const SearchStock: React.FC = () => {
                 </ButtonGroup>
               </div>
               <StockChart data={historicalData} ticker={ticker} />
+              
+              {/* Additional Stock Information in Grid */}
+              {additionalInfo && (
+                <Card style={{ marginTop: '20px', padding: '20px' }}>
+                  <Grid container spacing={2} style={{ marginTop: '20px' }}>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">Previous Close</Typography>
+                      <Typography variant="h6">{additionalInfo.previous_close || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">Open</Typography>
+                      <Typography variant="h6">{additionalInfo.open || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">Market Cap</Typography>
+                      <Typography variant="h6">${additionalInfo.market_cap || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">Volume</Typography>
+                      <Typography variant="h6">{additionalInfo.volume || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">Day's Range</Typography>
+                      <Typography variant="h6">{additionalInfo.days_range || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">52 Week Range</Typography>
+                      <Typography variant="h6">{additionalInfo['52_week_range'] || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">P/E Ratio</Typography>
+                      <Typography variant="h6">{additionalInfo.pe_ratio || '--'}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={3}>
+                      <Typography variant="body2">EPS</Typography>
+                      <Typography variant="h6">{additionalInfo.eps || '--'}</Typography>
+                    </Grid>
+                  </Grid>
+                </Card>
+              )}
             </>
           )}
         </Grid>

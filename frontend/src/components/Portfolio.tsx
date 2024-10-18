@@ -82,7 +82,7 @@ const Portfolio: React.FC = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Typography variant="h4">Your Portfolio</Typography>
+      <Typography variant="h4">Portfolio Performance</Typography>
 
       {/* Portfolio Performance Chart */}
       {portfolioHistory.length > 0 && (

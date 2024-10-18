@@ -14,7 +14,7 @@ import {
   MenuItem,
   FormControl,
 } from '@mui/material';
-import PortfolioPerfChart from './PortfolioPerfChart';
+import PortfolioPerfChart from './charts/PortfolioPerfChart';
 
 
 interface PortfolioItem {

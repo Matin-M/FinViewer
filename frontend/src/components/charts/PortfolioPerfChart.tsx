@@ -56,7 +56,7 @@ const PortfolioPerfChart: React.FC<PortfolioChartProps> = ({ data }) => {
         {/* Custom tooltip */}
         <Tooltip content={<CustomTooltip />} />
         <Line
-          type="monotone" // Smoother line
+          type="monotone"
           dataKey="total_value"
           stroke="#8884d8"
           strokeWidth={2}

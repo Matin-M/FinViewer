@@ -12,7 +12,7 @@ import {
   ListItemButton,
   ButtonGroup,
 } from '@mui/material';
-import StockChart from './StockChart';
+import StockChart from './charts/StockChart';
 
 const SearchStock: React.FC = () => {
   const [ticker, setTicker] = useState('SPY');

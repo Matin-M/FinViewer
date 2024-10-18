@@ -21,8 +21,16 @@ const SearchStock: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [timeRange, setTimeRange] = useState('1mo');
-  const [quantity, setQuantity] = useState<number | ''>(''); // New state for quantity
+  const [quantity, setQuantity] = useState<number | ''>('');
   const [additionalInfo, setAdditionalInfo] = useState<any>(null);
+
+  useEffect(() => {
+    // Load recent searches from localStorage on component mount
+    const storedSearches = localStorage.getItem('recentSearches');
+    if (storedSearches) {
+      setRecentSearches(JSON.parse(storedSearches));
+    }
+  }, []);
 
   const handleSearch = async () => {
     try {
@@ -38,7 +46,9 @@ const SearchStock: React.FC = () => {
       // Update recent searches
       setRecentSearches((prev) => {
         const updated = [ticker, ...prev.filter((t) => t !== ticker)];
-        return updated.slice(0, 5);
+        const limited = updated.slice(0, 10);
+        localStorage.setItem('recentSearches', JSON.stringify(limited)); // Save to localStorage
+        return limited;
       });
     } catch (error) {
       console.error('Error fetching stock data:', error);

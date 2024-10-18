@@ -20,7 +20,7 @@ const PortfolioPerfChart: React.FC<PortfolioChartProps> = ({ data }) => {
     ...item,
     date: new Date(item.date).getTime(),
   }));
- 
+
   // Custom tooltip to display date and value
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -28,9 +28,9 @@ const PortfolioPerfChart: React.FC<PortfolioChartProps> = ({ data }) => {
       const { total_value } = payload[0].payload;
 
       return (
-        <div style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
-          <p>{date}</p>
-          <p>Total Value: ${total_value.toFixed(2)}</p>
+        <div style={{ backgroundColor: '#26229e', padding: '10px', border: '1px solid #ccc' }}>
+          <p style={{ margin: 0 }}>{date}</p>
+          <p style={{ margin: 0 }}>Total Value: ${total_value.toFixed(2)}</p>
         </div>
       );
     }
@@ -40,14 +40,30 @@ const PortfolioPerfChart: React.FC<PortfolioChartProps> = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <LineChart data={formattedData}>
-        <CartesianGrid strokeDasharray="3 3" />
+        {/* Light grid lines for a cleaner look */}
+        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
         <XAxis
           dataKey="date"
           tickFormatter={(timestamp) => format(new Date(timestamp), 'MM/dd')}
+          interval="preserveStartEnd" // Display less ticks to reduce density
+          minTickGap={50} // Ensures more space between ticks
         />
-        <YAxis />
+        
+        {/* Y-axis with currency formatting */}
+        <YAxis
+          tickFormatter={(value) => `$${value.toLocaleString()}`}
+        />
+        
+        {/* Custom tooltip */}
         <Tooltip content={<CustomTooltip />} />
-        <Line type="monotone" dataKey="total_value" stroke="#8884d8" />
+        <Line
+          type="monotone" // Smoother line
+          dataKey="total_value"
+          stroke="#8884d8"
+          strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 6 }}
+        />
       </LineChart>
     </ResponsiveContainer>
   );

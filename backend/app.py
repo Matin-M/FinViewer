@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 import numpy as np
 import logging
+import random
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
@@ -61,8 +62,11 @@ def buy_stock():
         if current_price is None:
             return jsonify({'error': 'Unable to retrieve price data'}), 500
 
+        random_id = random.randint(100000, 999999)
+
         # Proceed with buying the stock at the determined price
         new_transaction = Transaction(
+            id=random_id,
             ticker=ticker.upper(),
             quantity=int(quantity),
             transaction_type='buy',
@@ -97,8 +101,11 @@ def sell_stock():
         if current_price is None:
             return jsonify({'error': 'Unable to retrieve price data'}), 500
 
+        random_id = random.randint(100000, 999999)
+
         # Proceed with selling the stock at the determined price
         new_transaction = Transaction(
+            id=random_id,
             ticker=ticker.upper(),
             quantity=int(quantity),
             transaction_type='sell',

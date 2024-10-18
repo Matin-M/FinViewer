@@ -8,6 +8,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import PortfolioPerfChart from './PortfolioPerfChart';
 
@@ -29,6 +34,26 @@ interface PortfolioHistoryItem {
 const Portfolio: React.FC = () => {
   const [portfolioDetails, setPortfolioDetails] = useState<PortfolioItem[]>([]);
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryItem[]>([]);
+  const [transactionQuantities, setTransactionQuantities] = useState<{ [key: string]: number | '' }>({});
+  const [transactionTypes, setTransactionTypes] = useState<{ [key: string]: 'buy' | 'sell' }>({});
+
+  const handleTransaction = async (ticker: string) => {
+    const quantity = transactionQuantities[ticker];
+    const type = transactionTypes[ticker] || 'sell';
+    if (!quantity) {
+      alert('Please enter a quantity.');
+      return;
+    }
+
+    try {
+      await axios.post(`/${type}`, { ticker, quantity: Number(quantity) });
+      alert(`Stock ${type} successful`);
+      setTransactionQuantities((prev) => ({ ...prev, [ticker]: '' }));
+    } catch (error) {
+      console.error(`Error during ${type}:`, error);
+      alert(`Failed to ${type} stock`);
+    }
+  };
 
   useEffect(() => {
     const fetchPortfolioDetails = async () => {
@@ -77,6 +102,7 @@ const Portfolio: React.FC = () => {
               <TableCell align="right">Current Price</TableCell>
               <TableCell align="right">Total Value</TableCell>
               <TableCell align="right">Unrealized P&L</TableCell>
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -94,6 +120,42 @@ const Portfolio: React.FC = () => {
                   style={{ color: item.unrealized_pl >= 0 ? 'green' : 'red' }}
                 >
                   ${item.unrealized_pl.toFixed(2)}
+                </TableCell>
+                <TableCell align="right">
+                  <FormControl style={{ marginRight: '10px', minWidth: '100px' }}>
+                    <Select
+                      value={transactionTypes[item.ticker] || 'sell'}
+                      onChange={(e) =>
+                        setTransactionTypes((prev) => ({
+                          ...prev,
+                          [item.ticker]: e.target.value as 'buy' | 'sell',
+                        }))
+                      }
+                    >
+                      <MenuItem value="buy">Buy</MenuItem>
+                      <MenuItem value="sell">Sell</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Quantity"
+                    type="number"
+                    value={transactionQuantities[item.ticker] || ''}
+                    onChange={(e) =>
+                      setTransactionQuantities((prev) => ({
+                        ...prev,
+                        [item.ticker]: e.target.value ? Number(e.target.value) : '',
+                      }))
+                    }
+                    style={{ marginRight: '10px', width: '80px' }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleTransaction(item.ticker)}
+                    style={{ height: '56px' }} // Match the height of the TextField
+                  >
+                    Execute
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

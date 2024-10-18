@@ -22,6 +22,7 @@ const SearchStock: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<any[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [timeRange, setTimeRange] = useState('1mo');
+  const [quantity, setQuantity] = useState<number | ''>(''); // New state for quantity
 
   const handleSearch = async () => {
     try {
@@ -41,6 +42,23 @@ const SearchStock: React.FC = () => {
     } catch (error) {
       console.error('Error fetching stock data:', error);
       alert('Stock not found');
+    }
+  };
+
+  const handleTransaction = async (type: 'buy') => {
+    if (!ticker || !quantity) {
+      alert('Please enter a ticker and quantity.');
+      return;
+    }
+
+    try {
+      await axios.post(`/${type}`, { ticker, quantity: Number(quantity) });
+      alert(`Stock ${type} successful`);
+      setTicker('');
+      setQuantity('');
+    } catch (error) {
+      console.error(`Error during ${type}:`, error);
+      alert(`Failed to ${type} stock`);
     }
   };
 
@@ -65,6 +83,22 @@ const SearchStock: React.FC = () => {
                 <Typography variant="body1">
                   Current Price: ${stockData.currentPrice}
                 </Typography>
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                  <TextField
+                    label="Quantity"
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value ? Number(e.target.value) : '')}
+                    style={{ marginRight: '10px' }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleTransaction('buy')}
+                  >
+                    Buy
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

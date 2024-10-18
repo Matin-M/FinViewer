@@ -11,7 +11,7 @@ services:
       - FLASK_ENV=development  # Enable Flask auto-reloading
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
     volumes:
-      - ./backend:/app  # Mount your codebase to the container
+      - ./backend:/app
       - ./backend/migrations:/app/migrations  # Persist migrations to host
     depends_on:
       db:
@@ -29,7 +29,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"] # Start backend only if DB is ready
       interval: 10s
       timeout: 5s
       retries: 5

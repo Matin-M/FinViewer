@@ -276,7 +276,7 @@ def get_stock_history(ticker):
         stock = yf.Ticker(ticker)
         history = stock.history(period=time_range, interval='1d')
 
-        # Downsample to a fixed number of points (e.g., 60)
+        # Downsample to a fixed number of points to increase performance
         desired_points = 60
         if len(history) > desired_points:
             indices = np.linspace(0, len(history) - 1,

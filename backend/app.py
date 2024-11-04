@@ -1,5 +1,5 @@
 from flask_migrate import Migrate
-from models import db, Transaction
+from models import db, Transaction, Preference
 import yfinance as yf
 from flask_cors import CORS
 from flask import Flask, request, jsonify
@@ -30,6 +30,33 @@ logging.basicConfig(level=logging.DEBUG)
 file_handler = logging.FileHandler('error.log')
 file_handler.setLevel(logging.DEBUG)  # Capture debug-level logs as well
 app.logger.addHandler(file_handler)
+
+
+# Preference Route
+@app.route('/api/preference', methods=['GET', 'PUT'])
+def set_pref():
+    data = request.get_json()
+    if request.method == "GET":
+        pref = db.session.execute(
+            db.select(Preference).filter_by(key=data['key'])).scalar_one_or_none()
+        return jsonify({'value', pref.value})
+    else:
+        pref = db.session.execute(
+            db.select(Preference).filter_by(key=data['key'])).scalar_one_or_none()
+        if not pref:
+            newPref = Preference(
+                key=data['key'],
+                value=data['value'],
+            )
+            db.session.add(newPref)
+
+        else:
+            pref.key = data['key']
+            pref.value = data.value
+
+        db.session.commit()
+
+        return jsonify({'message': 'Preference saved successfully'})
 
 
 @app.route('/api/stock/<ticker>', methods=['GET'])

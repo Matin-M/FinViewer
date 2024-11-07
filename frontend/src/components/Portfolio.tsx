@@ -26,6 +26,7 @@ interface PortfolioItem {
   total_value: number;
   unrealized_pl: number;
   purchase_date: string;
+  company_logo: string;
 }
 
 interface PortfolioHistoryItem {
@@ -62,6 +63,7 @@ const Portfolio: React.FC = () => {
     const fetchPortfolioDetails = async () => {
       try {
         const response = await axios.get('/portfolio_details');
+        console.log(response.data)
         setPortfolioDetails(response.data);
       } catch (error) {
         console.error('Error fetching portfolio details:', error);
@@ -123,6 +125,7 @@ const Portfolio: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Logo</TableCell>
               <TableCell>Ticker</TableCell>
               <TableCell align="right">Quantity</TableCell>
               <TableCell align="right">Cost Basis</TableCell>
@@ -136,6 +139,9 @@ const Portfolio: React.FC = () => {
           <TableBody>
             {portfolioDetails.map((item) => (
               <TableRow key={item.ticker}>
+                <TableCell component="th" scope="row">
+                  <img src={`https://logo.clearbit.com/${item.company_logo}`} alt={item.ticker}></img>
+                </TableCell>
                 <TableCell component="th" scope="row">
                   {item.ticker}
                 </TableCell>

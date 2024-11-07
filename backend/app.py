@@ -8,6 +8,7 @@ import os
 import numpy as np
 import logging
 import random
+import requests
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
@@ -260,6 +261,7 @@ def get_portfolio_details():
         stocks = yf.Tickers(' '.join(tickers))
 
         prices = {}
+        logos = {}
         for ticker in tickers:
             stock_info = stocks.tickers[ticker].info
 
@@ -267,6 +269,9 @@ def get_portfolio_details():
             current_price = stock_info.get('regularMarketPrice') or \
                 stock_info.get('postMarketPrice') or \
                 stock_info.get('previousClose')
+
+            logos[ticker] = stock_info.get(
+                'website', 'www.apple.com')
 
             prices[ticker] = current_price if current_price is not None else 0.0
 
@@ -279,6 +284,7 @@ def get_portfolio_details():
             total_value = current_price * quantity
             total_cost = cost_basis * quantity
             unrealized_pl = total_value - total_cost
+            company_logo = logos.get(ticker, 'www.apple.com')
             portfolio_details.append({
                 'ticker': ticker,
                 'quantity': quantity,
@@ -286,8 +292,8 @@ def get_portfolio_details():
                 'current_price': current_price,
                 'total_value': total_value,
                 'unrealized_pl': unrealized_pl,
-                # Include purchase date
-                'purchase_date': position['purchase_date']
+                'purchase_date': position['purchase_date'],
+                'company_logo': company_logo
             })
 
         return jsonify(portfolio_details), 200
@@ -300,6 +306,7 @@ def get_portfolio_details():
 def get_portfolio_history():
     try:
         # Get current holdings
+        # This should not need to be computed manually, holdings should be stored elsewhere
         transactions = Transaction.query.all()
         holdings = {}
         for txn in transactions:
@@ -316,7 +323,7 @@ def get_portfolio_history():
         quantities = holdings
 
         # Get historical prices
-        period = '1y'  # You can adjust the period as needed
+        period = '1y'  # 1 year just for now, but should be based on earliest holding
         data = yf.download(tickers=tickers, period=period,
                            interval='1d', group_by='ticker', auto_adjust=False)
 

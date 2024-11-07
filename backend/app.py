@@ -38,7 +38,6 @@ def handle_exception(e):
     return jsonify(response), 500
 
 
-# Preference Route
 @app.route('/api/preference', methods=['GET', 'PUT'])
 def set_pref():
     data = request.get_json() if request.method == "PUT" else request.args
@@ -127,6 +126,15 @@ def buy_stock():
 
         random_id = random.randint(100000, 999999)
 
+        # Deduct cost from balance.
+        balance_pref = db.session.execute(
+            db.select(Preference).filter_by(key='portfolio_balance')
+        ).scalar_one_or_none()
+
+        balance_pref.value = str(
+            float(balance_pref.value) - current_price * quantity)
+        db.session.commit()
+
         # Proceed with buying the stock at the determined price
         new_transaction = Transaction(
             id=random_id,
@@ -165,6 +173,15 @@ def sell_stock():
             return jsonify({'error': 'Unable to retrieve price data'}), 500
 
         random_id = random.randint(100000, 999999)
+
+        # Add gains to balance.
+        balance_pref = db.session.execute(
+            db.select(Preference).filter_by(key='portfolio_balance')
+        ).scalar_one_or_none()
+
+        balance_pref.value = str(
+            float(balance_pref.value) + current_price * quantity)
+        db.session.commit()
 
         # Proceed with selling the stock at the determined price
         new_transaction = Transaction(

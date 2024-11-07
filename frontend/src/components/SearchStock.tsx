@@ -11,9 +11,7 @@ import {
   ListItemText,
   ListItemButton,
   ButtonGroup,
-  IconButton,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete'; // Icon for removing searches
 import StockChart from './charts/StockChart';
 
 const SearchStock: React.FC = () => {
@@ -101,7 +99,7 @@ const SearchStock: React.FC = () => {
                   {stockData.longName} ({stockData.symbol})
                 </Typography>
                 <Typography variant="body1">
-                  Current Price: ${stockData.currentPrice}
+                  Current Price: ${stockData.currentPrice ? stockData.currentPrice : "--"}
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
                   <TextField

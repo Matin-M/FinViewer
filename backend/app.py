@@ -16,7 +16,7 @@ CORS(app)
 
 # Configure the SQLAlchemy part of the app instance
 DATABASE_URL = os.environ.get(
-    'DATABASE_URL', 'postgresql://postgres:postgres@db:5432/postgres')
+    'DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/postgres')
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = True
@@ -25,37 +25,54 @@ app.config['DEBUG'] = True
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
-file_handler = logging.FileHandler('error.log')
-file_handler.setLevel(logging.DEBUG)  # Capture debug-level logs as well
-app.logger.addHandler(file_handler)
+logging.basicConfig(level=logging.ERROR)
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f"An error occurred: {e}", exc_info=True)
+    response = {
+        "error": str(e),
+        "type": type(e).__name__
+    }
+    return jsonify(response), 500
 
 
 # Preference Route
 @app.route('/api/preference', methods=['GET', 'PUT'])
 def set_pref():
-    data = request.get_json()
+    data = request.get_json() if request.method == "PUT" else request.args
+    key = data.get('key')
+
+    if not key:
+        return jsonify({'error': 'Key is required'}), 400
+
     if request.method == "GET":
         pref = db.session.execute(
-            db.select(Preference).filter_by(key=data['key'])).scalar_one_or_none()
-        return jsonify({'value', pref.value})
-    else:
-        pref = db.session.execute(
-            db.select(Preference).filter_by(key=data['key'])).scalar_one_or_none()
-        if not pref:
-            newPref = Preference(
-                key=data['key'],
-                value=data['value'],
-            )
-            db.session.add(newPref)
+            db.select(Preference).filter_by(key=key)
+        ).scalar_one_or_none()
 
+        if pref is None:
+            return jsonify({'error': 'Preference not found'}), 404
+        return jsonify({'value': pref.value})
+
+    elif request.method == "PUT":
+        value = data.get('value')
+        if value is None:
+            return jsonify({'error': 'Value is required'}), 400
+
+        pref = db.session.execute(
+            db.select(Preference).filter_by(key=key)
+        ).scalar_one_or_none()
+
+        if pref is None:
+            new_pref = Preference(key=key, value=value)
+            db.session.add(new_pref)
         else:
-            pref.key = data['key']
-            pref.value = data.value
+            # Update the existing preference
+            pref.value = value
 
         db.session.commit()
-
         return jsonify({'message': 'Preference saved successfully'})
 
 

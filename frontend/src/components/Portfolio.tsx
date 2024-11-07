@@ -13,6 +13,7 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Grid,
 } from '@mui/material';
 import PortfolioPerfChart from './charts/PortfolioPerfChart';
 
@@ -35,6 +36,7 @@ interface PortfolioHistoryItem {
 const Portfolio: React.FC = () => {
   const [portfolioDetails, setPortfolioDetails] = useState<PortfolioItem[]>([]);
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryItem[]>([]);
+  const [portfolioBalance, setPortfolioBalance] = useState(0);
   const [transactionQuantities, setTransactionQuantities] = useState<{ [key: string]: number | '' }>({});
   const [transactionTypes, setTransactionTypes] = useState<{ [key: string]: 'buy' | 'sell' }>({});
 
@@ -77,13 +79,37 @@ const Portfolio: React.FC = () => {
       }
     };
 
+    const fetchPortfolioBalance = async () => {
+      try {
+        const response = await axios.get('/preference', {
+          params: {
+            key: 'portfolio_balance'
+          }
+        });
+        console.log(response);
+        setPortfolioBalance(response.data.value);
+      } catch (error) {
+        console.error('Error fetching portfolio balance:', error);
+        alert('Failed to load portfolio balance');
+      }
+    };
+
+    fetchPortfolioBalance();
     fetchPortfolioDetails();
     fetchPortfolioHistory();
   }, []);
 
   return (
     <div style={{ padding: '20px' }}>
+    <Grid 
+      container 
+      spacing={2} 
+      style={{ marginBottom: '10px', marginTop: '0px' }} 
+      justifyContent="space-between"
+    >
       <Typography variant="h4">Portfolio Performance</Typography>
+        <Typography variant="h4">Cash Balance ${portfolioBalance}</Typography>
+    </Grid>
 
       {/* Portfolio Performance Chart */}
       {portfolioHistory.length > 0 && (

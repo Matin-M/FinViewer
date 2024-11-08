@@ -8,7 +8,7 @@ import os
 import numpy as np
 import logging
 import random
-import requests
+import openai
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
@@ -37,6 +37,40 @@ def handle_exception(e):
         "type": type(e).__name__
     }
     return jsonify(response), 500
+
+
+@app.route('/api/ask_ai', methods=['GET'])
+def ask_ai():
+    data = request.get_json()
+    user_message = data.get('user_message')
+
+    # Set up your OpenAI API key
+    openai.api_key = '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'
+
+    system_message = """
+    Give me exactly three bullet points of the following structure:
+
+    1. Provide a brief description of the portfolios success in no longer than one sentence. 
+    2. Provide a brief description of the portfolios shortcomings in no longer that one sentence
+    3. Give some stock recommendations based on the current holdings, P&L, etc. in no longer than one sentence
+    """
+
+    # Define the messages for the conversation
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": user_message}
+    ]
+
+    # Make the API call
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+
+    # Print the assistant's reply
+    print(response['choices'][0]['message']['content'])
+
+    return jsonify({'response': response['choices'][0]['message']['content']})
 
 
 @app.route('/api/preference', methods=['GET', 'PUT'])

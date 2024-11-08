@@ -14,8 +14,10 @@ import {
   MenuItem,
   FormControl,
   Grid,
+  Modal,
 } from '@mui/material';
 import PortfolioPerfChart from './charts/PortfolioPerfChart';
+import PopupButton from './Popup';
 
 
 interface PortfolioItem {
@@ -38,6 +40,7 @@ const Portfolio: React.FC = () => {
   const [portfolioDetails, setPortfolioDetails] = useState<PortfolioItem[]>([]);
   const [portfolioHistory, setPortfolioHistory] = useState<PortfolioHistoryItem[]>([]);
   const [portfolioBalance, setPortfolioBalance] = useState(0);
+  const [aiResponse, setAiResponse] = useState("");
   const [transactionQuantities, setTransactionQuantities] = useState<{ [key: string]: number | '' }>({});
   const [transactionTypes, setTransactionTypes] = useState<{ [key: string]: 'buy' | 'sell' }>({});
 
@@ -96,6 +99,25 @@ const Portfolio: React.FC = () => {
       }
     };
 
+const makeAiRequest = async () => {
+  try {
+    const response = await axios.get('/ask_ai', {
+      headers: {
+        'Content-Type': 'application/json'  // Fix the case here
+      },
+      params: {  // Add missing comma
+        user_message: portfolioDetails.toString()
+      }
+    });
+    console.log(response);
+    setAiResponse(response.data.response);
+  } catch (error) {
+    console.error('Error fetching ai:', error);
+    alert('Failed to load ai');
+  }
+};
+
+    makeAiRequest();
     fetchPortfolioBalance();
     fetchPortfolioDetails();
     fetchPortfolioHistory();
@@ -110,7 +132,7 @@ const Portfolio: React.FC = () => {
       justifyContent="space-between"
     >
       <Typography variant="h4">Portfolio Performance</Typography>
-        <Typography variant="h4">Cash Balance ${portfolioBalance}</Typography>
+      <PopupButton messageContent={aiResponse}></PopupButton>
     </Grid>
 
       {/* Portfolio Performance Chart */}

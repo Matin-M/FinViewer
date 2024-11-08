@@ -34,6 +34,10 @@ The backend and db have been containerized to simplify networking and dependency
    docker-compose exec backend flask db upgrade
    ```
 
+   Running Migrations:
+   - create new table definition in models.py
+   - flask db migrate -m "Add <tablename>"
+
 ## Frontend Setup
 
 1. **Install Dependencies:**
